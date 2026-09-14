@@ -1,0 +1,755 @@
+openapi: 3.0.3
+info:
+  title: Tierfog
+  version: 0.1.0
+  description: Multi-tier edge/fog fabric converging IoT protocols for in-place federated analytics.
+  x-product-slug: ai-decentralized-tierfog
+  x-source: ai-in-decentralized+ai/muraliiot-edge-ai-networks-180601042020/
+servers:
+- url: https://api.example.com
+tags:
+- name: Sites
+  description: Sites and capacity classes
+- name: Tiers
+  description: Hierarchical edge/fog nodes
+- name: Domains
+  description: Protocol domains and gateways
+- name: Jobs
+  description: In-place analytics jobs
+- name: Trust
+  description: Trust spheres and quarantine
+- name: Provenance
+  description: Artefact provenance
+paths:
+  /v1/sites:
+    get:
+      operationId: listSites
+      tags:
+      - Sites
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelopeSite'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+    post:
+      operationId: registerSite
+      tags:
+      - Sites
+      security:
+      - BearerAuth: []
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataEnvelopeSite'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteCreate'
+  /v1/tiers:
+    get:
+      operationId: listTier
+      tags:
+      - Tiers
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelopeTierNode'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+    post:
+      operationId: registerTier
+      tags:
+      - Tiers
+      security:
+      - BearerAuth: []
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataEnvelopeTierNode'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TierNodeCreate'
+  /v1/domains:
+    get:
+      operationId: listProtocolDomains
+      tags:
+      - Domains
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelopeProtocolDomain'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+    post:
+      operationId: onboardProtocolDomain
+      tags:
+      - Domains
+      security:
+      - BearerAuth: []
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataEnvelopeProtocolDomain'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProtocolDomainCreate'
+  /v1/jobs:
+    get:
+      operationId: listAnalyticsJobs
+      tags:
+      - Jobs
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelopeAnalyticsJob'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+    post:
+      operationId: scheduleAnalyticsJob
+      tags:
+      - Jobs
+      security:
+      - BearerAuth: []
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataEnvelopeAnalyticsJob'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyticsJobCreate'
+  /v1/trust/spheres:
+    get:
+      operationId: listTrustSpheres
+      tags:
+      - Trust
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelopeTrustSphere'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+    post:
+      operationId: createTrustSphere
+      tags:
+      - Trust
+      security:
+      - BearerAuth: []
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataEnvelopeTrustSphere'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrustSphere'
+  /v1/trust/quarantine:
+    post:
+      operationId: quarantineTier
+      tags:
+      - Trust
+      security:
+      - BearerAuth: []
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataEnvelopeQuarantineEvent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuarantineEventCreate'
+  /v1/provenance:
+    get:
+      operationId: listArtefactProvenance
+      tags:
+      - Provenance
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelopeArtefactProvenance'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      parameters:
+      - $ref: '#/components/parameters/Cursor'
+    post:
+      operationId: sealArtefactProvenance
+      tags:
+      - Provenance
+      security:
+      - ApiKeyAuth: []
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataEnvelopeArtefactProvenance'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtefactProvenance'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: Not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    UnprocessableEntity:
+      description: Unprocessable entity
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    ResponseMeta:
+      type: object
+      required:
+      - requestId
+      - timestamp
+      properties:
+        requestId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    Problem:
+      type: object
+      required:
+      - type
+      - title
+      - status
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+    Site:
+      type: object
+      required:
+      - id
+      - name
+      - siteClass
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        siteClass:
+          type: string
+          enum:
+          - hospital
+          - factory
+          - vehicle
+          - building
+          - other
+        estimatedGbPerDay:
+          type: number
+    SiteCreate:
+      type: object
+      required:
+      - name
+      - siteClass
+      properties:
+        name:
+          type: string
+        siteClass:
+          type: string
+        estimatedGbPerDay:
+          type: number
+    TierNode:
+      type: object
+      required:
+      - id
+      - siteId
+      - role
+      properties:
+        id:
+          type: string
+        siteId:
+          type: string
+        role:
+          type: string
+          enum:
+          - device
+          - fog
+          - edge
+          - cloud
+        parentTierId:
+          type: string
+        status:
+          type: string
+          enum:
+          - active
+          - quarantined
+    TierNodeCreate:
+      type: object
+      required:
+      - siteId
+      - role
+      properties:
+        siteId:
+          type: string
+        role:
+          type: string
+          enum:
+          - device
+          - fog
+          - edge
+          - cloud
+        parentTierId:
+          type: string
+    ProtocolDomain:
+      type: object
+      required:
+      - id
+      - protocolFamily
+      - tierId
+      properties:
+        id:
+          type: string
+        protocolFamily:
+          type: string
+          enum:
+          - mqtt_coap
+          - rpl_6lowpan
+          - bt_mesh
+          - v2x
+          - http_rich
+          - other
+        tierId:
+          type: string
+        gatewayConfigVersion:
+          type: string
+    ProtocolDomainCreate:
+      type: object
+      required:
+      - protocolFamily
+      - tierId
+      properties:
+        protocolFamily:
+          type: string
+        tierId:
+          type: string
+        gatewayConfigVersion:
+          type: string
+    AnalyticsJob:
+      type: object
+      required:
+      - id
+      - status
+      - executionTierId
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - scheduled
+          - running
+          - completed
+          - failed
+        executionTierId:
+          type: string
+        inPlace:
+          type: boolean
+        backhaulBytesAvoided:
+          type: integer
+    AnalyticsJobCreate:
+      type: object
+      required:
+      - preferredMaxTierRole
+      properties:
+        preferredMaxTierRole:
+          type: string
+          enum:
+          - device
+          - fog
+          - edge
+          - cloud
+        flRoundId:
+          type: string
+    TrustSphere:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        memberTierIds:
+          type: array
+          items:
+            type: string
+    QuarantineEvent:
+      type: object
+      required:
+      - id
+      - tierId
+      - active
+      properties:
+        id:
+          type: string
+        tierId:
+          type: string
+        active:
+          type: boolean
+        reason:
+          type: string
+    QuarantineEventCreate:
+      type: object
+      required:
+      - tierId
+      - reason
+      properties:
+        tierId:
+          type: string
+        reason:
+          type: string
+    ArtefactProvenance:
+      type: object
+      required:
+      - id
+      - artefactHash
+      - tierId
+      properties:
+        id:
+          type: string
+        artefactHash:
+          type: string
+        tierId:
+          type: string
+        jobId:
+          type: string
+        sealedAt:
+          type: string
+          format: date-time
+    DataEnvelopeSite:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/Site'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    ListEnvelopeSite:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: object
+          required:
+          - items
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Site'
+            nextCursor:
+              type: string
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    DataEnvelopeTierNode:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/TierNode'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    ListEnvelopeTierNode:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: object
+          required:
+          - items
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/TierNode'
+            nextCursor:
+              type: string
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    DataEnvelopeProtocolDomain:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/ProtocolDomain'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    ListEnvelopeProtocolDomain:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: object
+          required:
+          - items
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProtocolDomain'
+            nextCursor:
+              type: string
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    DataEnvelopeAnalyticsJob:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/AnalyticsJob'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    ListEnvelopeAnalyticsJob:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: object
+          required:
+          - items
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/AnalyticsJob'
+            nextCursor:
+              type: string
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    DataEnvelopeTrustSphere:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/TrustSphere'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    ListEnvelopeTrustSphere:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: object
+          required:
+          - items
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/TrustSphere'
+            nextCursor:
+              type: string
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    DataEnvelopeQuarantineEvent:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/QuarantineEvent'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    ListEnvelopeQuarantineEvent:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: object
+          required:
+          - items
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/QuarantineEvent'
+            nextCursor:
+              type: string
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    DataEnvelopeArtefactProvenance:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/ArtefactProvenance'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+    ListEnvelopeArtefactProvenance:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: object
+          required:
+          - items
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ArtefactProvenance'
+            nextCursor:
+              type: string
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
