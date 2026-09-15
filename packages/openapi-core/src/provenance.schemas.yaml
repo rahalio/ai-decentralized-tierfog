@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info:
+  title: Provenance schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    ArtefactProvenanceId:
+      type: string
+      pattern: '^prv_[0-9a-z]{26}$'
+    ArtefactProvenance:
+      type: object
+      required: [id, artefactHash, tierId, sealedAt, createdAt, updatedAt]
+      properties:
+        id: { $ref: '#/components/schemas/ArtefactProvenanceId' }
+        artefactHash: { type: string }
+        tierId: { type: string }
+        jobId: { type: string }
+        tierPath:
+          type: array
+          items: { type: string }
+        sealedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ArtefactProvenanceCreate:
+      type: object
+      required: [artefactHash, tierId]
+      properties:
+        artefactHash: { type: string, minLength: 1 }
+        tierId: { type: string }
+        jobId: { type: string }
+        tierPath:
+          type: array
+          items: { type: string }
+    ArtefactProvenanceListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ArtefactProvenance' }
+        nextCursor: { type: string }
+    ArtefactProvenanceResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/ArtefactProvenance' }
+    ArtefactProvenanceListResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/PagedDataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/ArtefactProvenanceListData' }

@@ -1,0 +1,18 @@
+{
+  "name": "@tierfog/openapi-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenAPI contracts for Tierfog (common + identity + product domains)",
+  "scripts": {
+    "lint:domains": "redocly lint",
+    "bundle:domains": "mkdir -p src/.bundled && redocly bundle identity --output src/.bundled/identity.openapi.yaml && redocly bundle identity --output src/.bundled/identity.json && redocly bundle sites --output src/.bundled/sites.openapi.yaml && redocly bundle sites --output src/.bundled/sites.json && redocly bundle tiers --output src/.bundled/tiers.openapi.yaml && redocly bundle tiers --output src/.bundled/tiers.json && redocly bundle protocol --output src/.bundled/protocol.openapi.yaml && redocly bundle protocol --output src/.bundled/protocol.json && redocly bundle jobs --output src/.bundled/jobs.openapi.yaml && redocly bundle jobs --output src/.bundled/jobs.json && redocly bundle fl --output src/.bundled/fl.openapi.yaml && redocly bundle fl --output src/.bundled/fl.json && redocly bundle addressing --output src/.bundled/addressing.openapi.yaml && redocly bundle addressing --output src/.bundled/addressing.json && redocly bundle trust --output src/.bundled/trust.openapi.yaml && redocly bundle trust --output src/.bundled/trust.json && redocly bundle provenance --output src/.bundled/provenance.openapi.yaml && redocly bundle provenance --output src/.bundled/provenance.json",
+    "lint": "pnpm run lint:domains",
+    "bundle": "pnpm run bundle:domains"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^1.34.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

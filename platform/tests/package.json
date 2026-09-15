@@ -1,0 +1,19 @@
+{
+  "name": "@tierfog/tests",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vitest shared helpers for Tierfog platform tests",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tierfog/core": "workspace:*",
+    "@tierfog/services": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.9"
+  }
+}

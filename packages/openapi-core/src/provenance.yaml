@@ -1,0 +1,121 @@
+openapi: 3.1.0
+info:
+  title: Provenance API
+  version: 0.1.0
+  description: |
+    Artefact provenance and transparency log by tier (BR-6).
+  x-domain: prv
+  license:
+    name: Proprietary
+    url: https://tierfog.local/license
+servers:
+  - url: https://api.tierfog.local
+security:
+  - apiKey: []
+tags:
+  - name: Provenance
+    description: Artefact provenance
+paths:
+  /v1/provenance:
+    get:
+      operationId: listArtefactProvenance
+      tags: [Provenance]
+      summary: List artefact provenance records
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: tierId
+          in: query
+          schema: { type: string }
+        - name: jobId
+          in: query
+          schema: { type: string }
+      x-repository: ArtefactProvenance
+      x-dynamodb:
+        entityType: "ARTEFACTPROVENANCE"
+        pkPatternTemplate: "ARTEFACTPROVENANCE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+        filterFields: ["tierId", "jobId"]
+      responses:
+        '200':
+          description: Provenance page
+          content:
+            application/json:
+              schema:
+                $ref: ./provenance.schemas.yaml#/components/schemas/ArtefactProvenanceListResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: sealArtefactProvenance
+      tags: [Provenance]
+      summary: Seal artefact provenance for a tier
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./provenance.schemas.yaml#/components/schemas/ArtefactProvenanceCreate
+      x-repository: ArtefactProvenance
+      x-dynamodb:
+        entityType: "ARTEFACTPROVENANCE"
+        pkPatternTemplate: "ARTEFACTPROVENANCE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '201':
+          description: Provenance sealed
+          content:
+            application/json:
+              schema:
+                $ref: ./provenance.schemas.yaml#/components/schemas/ArtefactProvenanceResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/provenance/{provenanceId}:
+    parameters:
+      - name: provenanceId
+        in: path
+        required: true
+        schema:
+          $ref: ./provenance.schemas.yaml#/components/schemas/ArtefactProvenanceId
+    get:
+      operationId: getArtefactProvenance
+      tags: [Provenance]
+      summary: Get artefact provenance
+      x-repository: ArtefactProvenance
+      x-dynamodb:
+        entityType: "ARTEFACTPROVENANCE"
+        pkPatternTemplate: "ARTEFACTPROVENANCE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '200':
+          description: Provenance
+          content:
+            application/json:
+              schema:
+                $ref: ./provenance.schemas.yaml#/components/schemas/ArtefactProvenanceResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

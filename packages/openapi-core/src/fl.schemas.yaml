@@ -1,0 +1,61 @@
+openapi: 3.1.0
+info:
+  title: FL schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    FlRoundId:
+      type: string
+      pattern: '^flr_[0-9a-z]{26}$'
+    FlEligibilityStatus:
+      type: string
+      enum: [eligible, denied, waived]
+    FlDenyReason:
+      type: string
+      enum: [mesh_loss, quarantine, unhealthy, other]
+    FlRoundEligibility:
+      type: object
+      required: [id, roundId, tierId, status, createdAt, updatedAt]
+      properties:
+        id: { $ref: '#/components/schemas/FlRoundId' }
+        roundId: { type: string }
+        tierId: { type: string }
+        status: { $ref: '#/components/schemas/FlEligibilityStatus' }
+        denyReason: { $ref: '#/components/schemas/FlDenyReason' }
+        healthScore: { type: number }
+        waiverNote: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    FlRoundEligibilityCreate:
+      type: object
+      required: [roundId, tierId]
+      properties:
+        roundId: { type: string }
+        tierId: { type: string }
+        healthScore: { type: number }
+    FlHealthGateWaive:
+      type: object
+      required: [waiverNote]
+      properties:
+        waiverNote: { type: string, minLength: 1 }
+    FlRoundEligibilityListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/FlRoundEligibility' }
+        nextCursor: { type: string }
+    FlRoundEligibilityResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/FlRoundEligibility' }
+    FlRoundEligibilityListResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/PagedDataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/FlRoundEligibilityListData' }

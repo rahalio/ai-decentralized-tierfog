@@ -1,0 +1,122 @@
+openapi: 3.1.0
+info:
+  title: Tiers API
+  version: 0.1.0
+  description: |
+    Hierarchical edge/fog/cloud tier registry (BR-2, BR-9).
+  x-domain: tir
+  license:
+    name: Proprietary
+    url: https://tierfog.local/license
+servers:
+  - url: https://api.tierfog.local
+security:
+  - apiKey: []
+tags:
+  - name: Tiers
+    description: Hierarchical edge/fog nodes
+paths:
+  /v1/tiers:
+    get:
+      operationId: listTiers
+      tags: [Tiers]
+      summary: List tier nodes
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: siteId
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema:
+            $ref: ./tiers.schemas.yaml#/components/schemas/TierStatus
+      x-repository: TierNode
+      x-dynamodb:
+        entityType: "TIERNODE"
+        pkPatternTemplate: "TIERNODE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+        filterFields: ["siteId", "status"]
+      responses:
+        '200':
+          description: Tiers page
+          content:
+            application/json:
+              schema:
+                $ref: ./tiers.schemas.yaml#/components/schemas/TierNodeListResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: registerTier
+      tags: [Tiers]
+      summary: Register a tier node in the DAG
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./tiers.schemas.yaml#/components/schemas/TierNodeCreate
+      x-repository: TierNode
+      x-dynamodb:
+        entityType: "TIERNODE"
+        pkPatternTemplate: "TIERNODE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '201':
+          description: Tier registered
+          content:
+            application/json:
+              schema:
+                $ref: ./tiers.schemas.yaml#/components/schemas/TierNodeResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/tiers/{tierId}:
+    parameters:
+      - name: tierId
+        in: path
+        required: true
+        schema:
+          $ref: ./tiers.schemas.yaml#/components/schemas/TierNodeId
+    get:
+      operationId: getTier
+      tags: [Tiers]
+      summary: Get tier node
+      x-repository: TierNode
+      x-dynamodb:
+        entityType: "TIERNODE"
+        pkPatternTemplate: "TIERNODE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '200':
+          description: Tier node
+          content:
+            application/json:
+              schema:
+                $ref: ./tiers.schemas.yaml#/components/schemas/TierNodeResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

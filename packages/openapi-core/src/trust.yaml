@@ -1,0 +1,259 @@
+openapi: 3.1.0
+info:
+  title: Trust API
+  version: 0.1.0
+  description: |
+    Trust spheres, quarantine without DAG collapse, tenant isolation (BR-4, BR-9, BR-12).
+  x-domain: trs
+  license:
+    name: Proprietary
+    url: https://tierfog.local/license
+servers:
+  - url: https://api.tierfog.local
+security:
+  - apiKey: []
+tags:
+  - name: Trust
+    description: Trust spheres and quarantine
+paths:
+  /v1/trust/spheres:
+    get:
+      operationId: listTrustSpheres
+      tags: [Trust]
+      summary: List trust spheres
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+      x-repository: TrustSphere
+      x-dynamodb:
+        entityType: "TRUSTSPHERE"
+        pkPatternTemplate: "TRUSTSPHERE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '200':
+          description: Spheres page
+          content:
+            application/json:
+              schema:
+                $ref: ./trust.schemas.yaml#/components/schemas/TrustSphereListResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createTrustSphere
+      tags: [Trust]
+      summary: Create trust sphere
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./trust.schemas.yaml#/components/schemas/TrustSphereCreate
+      x-repository: TrustSphere
+      x-dynamodb:
+        entityType: "TRUSTSPHERE"
+        pkPatternTemplate: "TRUSTSPHERE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '201':
+          description: Sphere created
+          content:
+            application/json:
+              schema:
+                $ref: ./trust.schemas.yaml#/components/schemas/TrustSphereResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/trust/spheres/{sphereId}/join:
+    parameters:
+      - name: sphereId
+        in: path
+        required: true
+        schema:
+          $ref: ./trust.schemas.yaml#/components/schemas/TrustSphereId
+    post:
+      operationId: approveSphereJoin
+      tags: [Trust]
+      summary: Approve tier join into sphere
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./trust.schemas.yaml#/components/schemas/SphereJoinRequest
+      x-repository: TrustSphere
+      responses:
+        '200':
+          description: Join approved
+          content:
+            application/json:
+              schema:
+                $ref: ./trust.schemas.yaml#/components/schemas/TrustSphereResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/trust/quarantine:
+    get:
+      operationId: listQuarantineEvents
+      tags: [Trust]
+      summary: List quarantine events
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: active
+          in: query
+          schema: { type: boolean }
+      x-repository: QuarantineEvent
+      x-dynamodb:
+        entityType: "QUARANTINEEVENT"
+        pkPatternTemplate: "QUARANTINEEVENT#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+        filterFields: ["active"]
+      responses:
+        '200':
+          description: Quarantine page
+          content:
+            application/json:
+              schema:
+                $ref: ./trust.schemas.yaml#/components/schemas/QuarantineEventListResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: quarantineTier
+      tags: [Trust]
+      summary: Quarantine tier without collapsing parent DAG
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./trust.schemas.yaml#/components/schemas/QuarantineEventCreate
+      x-repository: QuarantineEvent
+      x-dynamodb:
+        entityType: "QUARANTINEEVENT"
+        pkPatternTemplate: "QUARANTINEEVENT#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '201':
+          description: Tier quarantined
+          content:
+            application/json:
+              schema:
+                $ref: ./trust.schemas.yaml#/components/schemas/QuarantineEventResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/trust/quarantine/{eventId}/release:
+    parameters:
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          $ref: ./trust.schemas.yaml#/components/schemas/QuarantineEventId
+    post:
+      operationId: releaseQuarantine
+      tags: [Trust]
+      summary: Release quarantined tier
+      x-repository: QuarantineEvent
+      responses:
+        '200':
+          description: Quarantine released
+          content:
+            application/json:
+              schema:
+                $ref: ./trust.schemas.yaml#/components/schemas/QuarantineEventResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/trust/tenants:
+    get:
+      operationId: listTenantSpheres
+      tags: [Trust]
+      summary: List tenant spheres on shared edge hosts
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+      x-repository: TenantSphere
+      x-dynamodb:
+        entityType: "TENANTSPHERE"
+        pkPatternTemplate: "TENANTSPHERE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '200':
+          description: Tenant spheres page
+          content:
+            application/json:
+              schema:
+                $ref: ./trust.schemas.yaml#/components/schemas/TenantSphereListResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: createTenantSphere
+      tags: [Trust]
+      summary: Create tenant sphere with crypto isolation
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./trust.schemas.yaml#/components/schemas/TenantSphereCreate
+      x-repository: TenantSphere
+      x-dynamodb:
+        entityType: "TENANTSPHERE"
+        pkPatternTemplate: "TENANTSPHERE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '201':
+          description: Tenant sphere created
+          content:
+            application/json:
+              schema:
+                $ref: ./trust.schemas.yaml#/components/schemas/TenantSphereResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

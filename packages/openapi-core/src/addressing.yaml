@@ -1,0 +1,143 @@
+openapi: 3.1.0
+info:
+  title: Addressing API
+  version: 0.1.0
+  description: |
+    Federated data addressing by reference — no global PII index (BR-5).
+  x-domain: adr
+  license:
+    name: Proprietary
+    url: https://tierfog.local/license
+servers:
+  - url: https://api.tierfog.local
+security:
+  - apiKey: []
+tags:
+  - name: Addressing
+    description: Federated data addresses
+paths:
+  /v1/addresses:
+    get:
+      operationId: listDataAddresses
+      tags: [Addressing]
+      summary: List federated data address refs
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: owningTierId
+          in: query
+          schema: { type: string }
+      x-repository: DataAddress
+      x-dynamodb:
+        entityType: "DATAADDRESS"
+        pkPatternTemplate: "DATAADDRESS#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+        filterFields: ["owningTierId"]
+      responses:
+        '200':
+          description: Addresses page
+          content:
+            application/json:
+              schema:
+                $ref: ./addressing.schemas.yaml#/components/schemas/DataAddressListResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: registerDataAddress
+      tags: [Addressing]
+      summary: Register a refs-only data address
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./addressing.schemas.yaml#/components/schemas/DataAddressCreate
+      x-repository: DataAddress
+      x-dynamodb:
+        entityType: "DATAADDRESS"
+        pkPatternTemplate: "DATAADDRESS#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '201':
+          description: Address registered
+          content:
+            application/json:
+              schema:
+                $ref: ./addressing.schemas.yaml#/components/schemas/DataAddressResponse
+        '422':
+          $ref: ./common/responses.yaml#/components/responses/UnprocessableEntity
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/addresses/{addressId}/grant:
+    parameters:
+      - name: addressId
+        in: path
+        required: true
+        schema:
+          $ref: ./addressing.schemas.yaml#/components/schemas/DataAddressId
+    post:
+      operationId: grantDataAddressResolve
+      tags: [Addressing]
+      summary: Grant cross-tier resolve
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./addressing.schemas.yaml#/components/schemas/DataAddressGrant
+      x-repository: DataAddress
+      responses:
+        '200':
+          description: Grant applied
+          content:
+            application/json:
+              schema:
+                $ref: ./addressing.schemas.yaml#/components/schemas/DataAddressResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/addresses/{addressId}/revoke:
+    parameters:
+      - name: addressId
+        in: path
+        required: true
+        schema:
+          $ref: ./addressing.schemas.yaml#/components/schemas/DataAddressId
+    post:
+      operationId: revokeDataAddress
+      tags: [Addressing]
+      summary: Revoke federated address
+      x-repository: DataAddress
+      responses:
+        '200':
+          description: Address revoked
+          content:
+            application/json:
+              schema:
+                $ref: ./addressing.schemas.yaml#/components/schemas/DataAddressResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

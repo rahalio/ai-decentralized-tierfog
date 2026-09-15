@@ -1,0 +1,64 @@
+:root {
+  --color-ink: #e6eef2;
+  --color-fog-950: #0b1214;
+  --color-fog-900: #121a1e;
+  --color-iron: #8a969c;
+  --color-mist: #5ad1c7;
+  --color-mist-dim: #2a7a74;
+  --color-amber: #e0a12b;
+  --color-coral: #e85d4c;
+  --color-brand: #9ee8e0;
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --motion-inplace: 200ms ease-out;
+  --motion-quarantine: 280ms ease-in;
+  --color-hairline: rgba(138, 150, 156, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background:
+    linear-gradient(180deg, rgba(90, 209, 199, 0.07) 0%, transparent 42%),
+    linear-gradient(180deg, #0e1619 0%, var(--color-fog-950) 45%, #0a1012 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}

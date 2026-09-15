@@ -1,0 +1,63 @@
+openapi: 3.1.0
+info:
+  title: Jobs schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    AnalyticsJobId:
+      type: string
+      pattern: '^job_[0-9a-z]{26}$'
+    JobStatus:
+      type: string
+      enum: [scheduled, running, completed, failed, paused]
+    TierRole:
+      type: string
+      enum: [device, fog, edge, cloud]
+    AnalyticsJob:
+      type: object
+      required: [id, status, executionTierId, inPlace, createdAt, updatedAt]
+      properties:
+        id: { $ref: '#/components/schemas/AnalyticsJobId' }
+        status: { $ref: '#/components/schemas/JobStatus' }
+        executionTierId: { type: string }
+        preferredMaxTierRole: { $ref: '#/components/schemas/TierRole' }
+        inPlace: { type: boolean }
+        backhaulBytesAvoided: { type: integer, format: int64 }
+        flRoundId: { type: string }
+        overrideReason: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    AnalyticsJobCreate:
+      type: object
+      required: [preferredMaxTierRole]
+      properties:
+        preferredMaxTierRole: { $ref: '#/components/schemas/TierRole' }
+        flRoundId: { type: string }
+        siteId: { type: string }
+    JobPlacementOverride:
+      type: object
+      required: [executionTierId, reason]
+      properties:
+        executionTierId: { type: string }
+        reason: { type: string, minLength: 1 }
+    AnalyticsJobListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/AnalyticsJob' }
+        nextCursor: { type: string }
+    AnalyticsJobResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/AnalyticsJob' }
+    AnalyticsJobListResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/PagedDataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/AnalyticsJobListData' }

@@ -1,0 +1,55 @@
+openapi: 3.1.0
+info:
+  title: Tiers schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    TierNodeId:
+      type: string
+      pattern: '^tir_[0-9a-z]{26}$'
+    TierRole:
+      type: string
+      enum: [device, fog, edge, cloud]
+    TierStatus:
+      type: string
+      enum: [active, quarantined]
+    TierNode:
+      type: object
+      required: [id, siteId, role, status, createdAt, updatedAt]
+      properties:
+        id: { $ref: '#/components/schemas/TierNodeId' }
+        siteId: { type: string }
+        role: { $ref: '#/components/schemas/TierRole' }
+        parentTierId: { type: string }
+        status: { $ref: '#/components/schemas/TierStatus' }
+        healthScore: { type: number }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    TierNodeCreate:
+      type: object
+      required: [siteId, role]
+      properties:
+        siteId: { type: string }
+        role: { $ref: '#/components/schemas/TierRole' }
+        parentTierId: { type: string }
+    TierNodeListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/TierNode' }
+        nextCursor: { type: string }
+    TierNodeResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/TierNode' }
+    TierNodeListResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/PagedDataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/TierNodeListData' }

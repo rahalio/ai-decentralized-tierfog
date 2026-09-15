@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: Addressing schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    DataAddressId:
+      type: string
+      pattern: '^adr_[0-9a-z]{26}$'
+    DataAddressStatus:
+      type: string
+      enum: [active, revoked, blocked]
+    DataAddress:
+      type: object
+      required: [id, ref, owningTierId, status, createdAt, updatedAt]
+      properties:
+        id: { $ref: '#/components/schemas/DataAddressId' }
+        ref: { type: string, description: Opaque federated reference — never cleartext PII }
+        owningTierId: { type: string }
+        status: { $ref: '#/components/schemas/DataAddressStatus' }
+        grantedTierIds:
+          type: array
+          items: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    DataAddressCreate:
+      type: object
+      required: [ref, owningTierId]
+      properties:
+        ref: { type: string, minLength: 1 }
+        owningTierId: { type: string }
+    DataAddressGrant:
+      type: object
+      required: [tierId]
+      properties:
+        tierId: { type: string }
+    DataAddressListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/DataAddress' }
+        nextCursor: { type: string }
+    DataAddressResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/DataAddress' }
+    DataAddressListResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/PagedDataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/DataAddressListData' }

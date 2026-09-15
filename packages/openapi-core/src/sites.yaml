@@ -1,0 +1,143 @@
+openapi: 3.1.0
+info:
+  title: Sites API
+  version: 0.1.0
+  description: |
+    Site registry and deluge capacity classes (BR-11).
+  x-domain: sit
+  license:
+    name: Proprietary
+    url: https://tierfog.local/license
+servers:
+  - url: https://api.tierfog.local
+security:
+  - apiKey: []
+tags:
+  - name: Sites
+    description: Sites and capacity classes
+paths:
+  /v1/sites:
+    get:
+      operationId: listSites
+      tags: [Sites]
+      summary: List sites
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: siteClass
+          in: query
+          schema:
+            $ref: ./sites.schemas.yaml#/components/schemas/SiteClass
+      x-repository: Site
+      x-dynamodb:
+        entityType: "SITE"
+        pkPatternTemplate: "SITE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+        filterFields: ["siteClass"]
+      responses:
+        '200':
+          description: Sites page
+          content:
+            application/json:
+              schema:
+                $ref: ./sites.schemas.yaml#/components/schemas/SiteListResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: registerSite
+      tags: [Sites]
+      summary: Register a site with capacity class
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./sites.schemas.yaml#/components/schemas/SiteCreate
+      x-repository: Site
+      x-dynamodb:
+        entityType: "SITE"
+        pkPatternTemplate: "SITE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '201':
+          description: Site registered
+          content:
+            application/json:
+              schema:
+                $ref: ./sites.schemas.yaml#/components/schemas/SiteResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/sites/{siteId}:
+    parameters:
+      - name: siteId
+        in: path
+        required: true
+        schema:
+          $ref: ./sites.schemas.yaml#/components/schemas/SiteId
+    get:
+      operationId: getSite
+      tags: [Sites]
+      summary: Get site by id
+      x-repository: Site
+      x-dynamodb:
+        entityType: "SITE"
+        pkPatternTemplate: "SITE#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '200':
+          description: Site
+          content:
+            application/json:
+              schema:
+                $ref: ./sites.schemas.yaml#/components/schemas/SiteResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    patch:
+      operationId: updateSite
+      tags: [Sites]
+      summary: Update site capacity fields
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./sites.schemas.yaml#/components/schemas/SiteUpdate
+      x-repository: Site
+      responses:
+        '200':
+          description: Site updated
+          content:
+            application/json:
+              schema:
+                $ref: ./sites.schemas.yaml#/components/schemas/SiteResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

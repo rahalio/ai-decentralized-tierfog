@@ -1,0 +1,182 @@
+openapi: 3.1.0
+info:
+  title: Protocol API
+  version: 0.1.0
+  description: |
+    Protocol domain onboarding, gateway config push, and channel isolation (BR-1, BR-7, BR-8).
+  x-domain: prd
+  license:
+    name: Proprietary
+    url: https://tierfog.local/license
+servers:
+  - url: https://api.tierfog.local
+security:
+  - apiKey: []
+tags:
+  - name: Domains
+    description: Protocol domains and gateways
+paths:
+  /v1/domains:
+    get:
+      operationId: listProtocolDomains
+      tags: [Domains]
+      summary: List protocol domains
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: tierId
+          in: query
+          schema: { type: string }
+      x-repository: ProtocolDomain
+      x-dynamodb:
+        entityType: "PROTOCOLDOMAIN"
+        pkPatternTemplate: "PROTOCOLDOMAIN#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+        filterFields: ["tierId"]
+      responses:
+        '200':
+          description: Domains page
+          content:
+            application/json:
+              schema:
+                $ref: ./protocol.schemas.yaml#/components/schemas/ProtocolDomainListResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: onboardProtocolDomain
+      tags: [Domains]
+      summary: Onboard protocol domain via software gateway
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./protocol.schemas.yaml#/components/schemas/ProtocolDomainCreate
+      x-repository: ProtocolDomain
+      x-dynamodb:
+        entityType: "PROTOCOLDOMAIN"
+        pkPatternTemplate: "PROTOCOLDOMAIN#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '201':
+          description: Domain onboarded
+          content:
+            application/json:
+              schema:
+                $ref: ./protocol.schemas.yaml#/components/schemas/ProtocolDomainResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/domains/{domainId}:
+    parameters:
+      - name: domainId
+        in: path
+        required: true
+        schema:
+          $ref: ./protocol.schemas.yaml#/components/schemas/ProtocolDomainId
+    get:
+      operationId: getProtocolDomain
+      tags: [Domains]
+      summary: Get protocol domain
+      x-repository: ProtocolDomain
+      x-dynamodb:
+        entityType: "PROTOCOLDOMAIN"
+        pkPatternTemplate: "PROTOCOLDOMAIN#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '200':
+          description: Domain
+          content:
+            application/json:
+              schema:
+                $ref: ./protocol.schemas.yaml#/components/schemas/ProtocolDomainResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/domains/{domainId}/gateway-config:
+    parameters:
+      - name: domainId
+        in: path
+        required: true
+        schema:
+          $ref: ./protocol.schemas.yaml#/components/schemas/ProtocolDomainId
+    post:
+      operationId: pushGatewayConfig
+      tags: [Domains]
+      summary: Push or update gateway software config
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./protocol.schemas.yaml#/components/schemas/GatewayConfigPush
+      x-repository: ProtocolDomain
+      responses:
+        '200':
+          description: Config pushed
+          content:
+            application/json:
+              schema:
+                $ref: ./protocol.schemas.yaml#/components/schemas/ProtocolDomainResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/domains/{domainId}/isolation:
+    parameters:
+      - name: domainId
+        in: path
+        required: true
+        schema:
+          $ref: ./protocol.schemas.yaml#/components/schemas/ProtocolDomainId
+    put:
+      operationId: updateIsolationPolicy
+      tags: [Domains]
+      summary: Set channel isolation policy for mixed radios
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./protocol.schemas.yaml#/components/schemas/IsolationPolicyUpdate
+      x-repository: ProtocolDomain
+      responses:
+        '200':
+          description: Isolation policy saved
+          content:
+            application/json:
+              schema:
+                $ref: ./protocol.schemas.yaml#/components/schemas/IsolationPolicyResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

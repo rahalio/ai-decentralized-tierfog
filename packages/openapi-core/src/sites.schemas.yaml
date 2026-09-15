@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: Sites schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    SiteId:
+      type: string
+      pattern: '^sit_[0-9a-z]{26}$'
+    SiteClass:
+      type: string
+      enum: [hospital, factory, vehicle, building, other]
+    Site:
+      type: object
+      required: [id, name, siteClass, createdAt, updatedAt]
+      properties:
+        id: { $ref: '#/components/schemas/SiteId' }
+        name: { type: string }
+        siteClass: { $ref: '#/components/schemas/SiteClass' }
+        estimatedGbPerDay: { type: number }
+        backhaulBytesAvoided: { type: integer, format: int64 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    SiteCreate:
+      type: object
+      required: [name, siteClass]
+      properties:
+        name: { type: string, minLength: 1 }
+        siteClass: { $ref: '#/components/schemas/SiteClass' }
+        estimatedGbPerDay: { type: number }
+    SiteUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        siteClass: { $ref: '#/components/schemas/SiteClass' }
+        estimatedGbPerDay: { type: number }
+    SiteListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Site' }
+        nextCursor: { type: string }
+    SiteResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/Site' }
+    SiteListResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/PagedDataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/SiteListData' }

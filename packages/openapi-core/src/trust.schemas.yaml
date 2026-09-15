@@ -1,0 +1,137 @@
+openapi: 3.1.0
+info:
+  title: Trust schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    TrustSphereId:
+      type: string
+      pattern: '^trs_[0-9a-z]{26}$'
+    QuarantineEventId:
+      type: string
+      pattern: '^qrn_[0-9a-z]{26}$'
+    TenantSphereId:
+      type: string
+      pattern: '^tns_[0-9a-z]{26}$'
+    JoinRequestStatus:
+      type: string
+      enum: [pending, approved, denied]
+    TrustSphere:
+      type: object
+      required: [id, name, createdAt, updatedAt]
+      properties:
+        id: { $ref: '#/components/schemas/TrustSphereId' }
+        name: { type: string }
+        memberTierIds:
+          type: array
+          items: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    TrustSphereCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1 }
+        memberTierIds:
+          type: array
+          items: { type: string }
+    SphereJoinRequest:
+      type: object
+      required: [tierId]
+      properties:
+        tierId: { type: string }
+    QuarantineEvent:
+      type: object
+      required: [id, tierId, active, reason, createdAt, updatedAt]
+      properties:
+        id: { $ref: '#/components/schemas/QuarantineEventId' }
+        tierId: { type: string }
+        active: { type: boolean }
+        reason: { type: string }
+        continueParentDag: { type: boolean, default: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    QuarantineEventCreate:
+      type: object
+      required: [tierId, reason]
+      properties:
+        tierId: { type: string }
+        reason: { type: string, minLength: 1 }
+        continueParentDag: { type: boolean, default: true }
+    TenantSphere:
+      type: object
+      required: [id, name, createdAt, updatedAt]
+      properties:
+        id: { $ref: '#/components/schemas/TenantSphereId' }
+        name: { type: string }
+        hostTierId: { type: string }
+        cryptoIsolated: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    TenantSphereCreate:
+      type: object
+      required: [name, hostTierId]
+      properties:
+        name: { type: string }
+        hostTierId: { type: string }
+    TrustSphereListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/TrustSphere' }
+        nextCursor: { type: string }
+    QuarantineEventListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/QuarantineEvent' }
+        nextCursor: { type: string }
+    TenantSphereListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/TenantSphere' }
+        nextCursor: { type: string }
+    TrustSphereResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/TrustSphere' }
+    TrustSphereListResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/PagedDataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/TrustSphereListData' }
+    QuarantineEventResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/QuarantineEvent' }
+    QuarantineEventListResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/PagedDataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/QuarantineEventListData' }
+    TenantSphereResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/TenantSphere' }
+    TenantSphereListResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/PagedDataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/TenantSphereListData' }

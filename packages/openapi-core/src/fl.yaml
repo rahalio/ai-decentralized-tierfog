@@ -1,0 +1,154 @@
+openapi: 3.1.0
+info:
+  title: FL Eligibility API
+  version: 0.1.0
+  description: |
+    Federated learning round eligibility gated on network health (BR-10).
+  x-domain: flr
+  license:
+    name: Proprietary
+    url: https://tierfog.local/license
+servers:
+  - url: https://api.tierfog.local
+security:
+  - apiKey: []
+tags:
+  - name: FL
+    description: FL round eligibility
+paths:
+  /v1/fl/eligibility:
+    get:
+      operationId: listFlRoundEligibility
+      tags: [FL]
+      summary: List FL eligibility records
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: roundId
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema:
+            $ref: ./fl.schemas.yaml#/components/schemas/FlEligibilityStatus
+      x-repository: FlRoundEligibility
+      x-dynamodb:
+        entityType: "FLROUNDELIGIBILITY"
+        pkPatternTemplate: "FLROUNDELIGIBILITY#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+        filterFields: ["roundId", "status"]
+      responses:
+        '200':
+          description: Eligibility page
+          content:
+            application/json:
+              schema:
+                $ref: ./fl.schemas.yaml#/components/schemas/FlRoundEligibilityListResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: evaluateFlRoundEligibility
+      tags: [FL]
+      summary: Evaluate health-gated FL eligibility for a tier
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./fl.schemas.yaml#/components/schemas/FlRoundEligibilityCreate
+      x-repository: FlRoundEligibility
+      x-dynamodb:
+        entityType: "FLROUNDELIGIBILITY"
+        pkPatternTemplate: "FLROUNDELIGIBILITY#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '201':
+          description: Eligibility recorded
+          content:
+            application/json:
+              schema:
+                $ref: ./fl.schemas.yaml#/components/schemas/FlRoundEligibilityResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/fl/eligibility/{eligibilityId}:
+    parameters:
+      - name: eligibilityId
+        in: path
+        required: true
+        schema:
+          $ref: ./fl.schemas.yaml#/components/schemas/FlRoundId
+    get:
+      operationId: getFlRoundEligibility
+      tags: [FL]
+      summary: Get FL eligibility record
+      x-repository: FlRoundEligibility
+      x-dynamodb:
+        entityType: "FLROUNDELIGIBILITY"
+        pkPatternTemplate: "FLROUNDELIGIBILITY#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '200':
+          description: Eligibility
+          content:
+            application/json:
+              schema:
+                $ref: ./fl.schemas.yaml#/components/schemas/FlRoundEligibilityResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/fl/eligibility/{eligibilityId}/waive:
+    parameters:
+      - name: eligibilityId
+        in: path
+        required: true
+        schema:
+          $ref: ./fl.schemas.yaml#/components/schemas/FlRoundId
+    post:
+      operationId: waiveFlHealthGate
+      tags: [FL]
+      summary: Waive health gate with risk note
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./fl.schemas.yaml#/components/schemas/FlHealthGateWaive
+      x-repository: FlRoundEligibility
+      responses:
+        '200':
+          description: Gate waived
+          content:
+            application/json:
+              schema:
+                $ref: ./fl.schemas.yaml#/components/schemas/FlRoundEligibilityResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

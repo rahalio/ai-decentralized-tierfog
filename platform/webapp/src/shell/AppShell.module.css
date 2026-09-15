@@ -1,0 +1,88 @@
+.shell {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: rgba(11, 18, 20, 0.94);
+  border-right: 1px solid var(--color-hairline);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.brand {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.fogMark {
+  width: 36px;
+  height: 28px;
+  border-radius: 40% 40% 48% 48%;
+  border: 2px solid var(--color-brand);
+  background:
+    radial-gradient(ellipse at 50% 70%, rgba(158, 232, 224, 0.4), transparent 55%),
+    linear-gradient(180deg, transparent 35%, rgba(42, 122, 116, 0.45) 100%);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-brand);
+  font-size: 1.15rem;
+}
+
+.cue {
+  font-size: 0.72rem;
+  color: var(--color-iron);
+  max-width: 18ch;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.link {
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-iron);
+  font-size: 0.9rem;
+}
+
+.link:hover {
+  background: var(--color-fog-900);
+  color: var(--color-ink);
+}
+
+.active {
+  background: var(--color-fog-900);
+  color: var(--color-brand);
+  border-left: 2px solid var(--color-mist);
+}
+
+.main {
+  padding: 1.75rem 2rem 3rem;
+}
+
+@media (max-width: 860px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,354 @@
+.page {
+  max-width: 1120px;
+}
+
+.hero {
+  margin-bottom: 1.75rem;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-brand);
+  margin: 0 0 0.5rem;
+}
+
+h1 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.lead {
+  margin: 0;
+  color: var(--color-iron);
+  max-width: 54ch;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.panel {
+  background: rgba(18, 26, 30, 0.72);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.1rem;
+}
+
+.panel h2 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--color-iron);
+}
+
+input,
+select,
+textarea {
+  background: var(--color-fog-950);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  padding: 0.45rem 0.55rem;
+  min-width: 140px;
+}
+
+.btn {
+  background: var(--color-mist);
+  color: #0b1214;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.9rem;
+}
+
+.btnDanger {
+  background: var(--color-coral);
+  color: #1a1010;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--color-hairline);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.ok {
+  color: var(--color-mist);
+}
+
+.warn {
+  color: var(--color-amber);
+}
+
+.bad {
+  color: var(--color-coral);
+}
+
+.error {
+  color: var(--color-coral);
+  font-size: 0.85rem;
+}
+
+.muted {
+  color: var(--color-iron);
+}
+
+.login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 20%, rgba(90, 209, 199, 0.12), transparent 60%),
+    linear-gradient(180deg, #0e1619 0%, var(--color-fog-950) 100%);
+}
+
+.loginCard {
+  width: min(440px, 100%);
+  background: rgba(18, 26, 30, 0.88);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  padding: 2.25rem 2rem;
+  text-align: center;
+}
+
+.loginCard .fogMark {
+  width: 72px;
+  height: 48px;
+  margin: 0 auto 1.25rem;
+  border-radius: 40% 40% 45% 45%;
+  border: 2px solid var(--color-brand);
+  background:
+    radial-gradient(ellipse at 50% 70%, rgba(158, 232, 224, 0.35), transparent 55%),
+    linear-gradient(180deg, transparent 30%, rgba(42, 122, 116, 0.4) 100%);
+  animation: fogPulse 3.2s ease-in-out infinite;
+}
+
+@keyframes fogPulse {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-3px);
+    opacity: 0.85;
+  }
+}
+
+.loginCard h1 {
+  font-size: 1.55rem;
+  line-height: 1.25;
+}
+
+.strip {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.85rem 1rem;
+  background: rgba(18, 26, 30, 0.55);
+  border-bottom: 2px solid var(--color-mist-dim);
+}
+
+.stat strong {
+  display: block;
+  font-size: 1.4rem;
+  font-family: var(--font-mono);
+}
+
+.stat span {
+  font-size: 0.75rem;
+  color: var(--color-iron);
+}
+
+.cards {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+}
+
+.badge.mist {
+  color: var(--color-mist);
+  border-color: var(--color-mist-dim);
+  box-shadow: 0 0 12px rgba(90, 209, 199, 0.18);
+  transition: box-shadow var(--motion-inplace);
+}
+
+.badge.amber {
+  color: var(--color-amber);
+}
+
+.badge.coral {
+  color: var(--color-coral);
+}
+
+.dag {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  background:
+    linear-gradient(var(--color-hairline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-hairline) 1px, transparent 1px),
+    rgba(11, 18, 20, 0.5);
+  background-size: 28px 28px, 28px 28px, auto;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  min-height: 280px;
+}
+
+.dagLane {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.dagLaneLabel {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  color: var(--color-iron);
+  min-width: 72px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dagNode {
+  min-width: 120px;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  background: rgba(18, 26, 30, 0.85);
+  transition: opacity var(--motion-quarantine), border-color var(--motion-inplace);
+}
+
+.dagNode.healthy {
+  border-color: var(--color-mist-dim);
+  box-shadow: inset 0 0 0 1px rgba(90, 209, 199, 0.12);
+}
+
+.dagNode.quarantined {
+  opacity: 0.38;
+  border-color: var(--color-coral);
+  filter: saturate(0.55);
+}
+
+.dagNode .role {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+}
+
+.dagNode .id {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--color-iron);
+}
+
+.meter {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(138, 150, 156, 0.2);
+  overflow: hidden;
+}
+
+.meter > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-mist-dim), var(--color-mist));
+}
+
+.meter.warn > span {
+  background: linear-gradient(90deg, var(--color-amber), #f0c56a);
+}
+
+.sphereOverlay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.sphereChip {
+  border: 1px dashed var(--color-mist-dim);
+  color: var(--color-brand);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.path .sep {
+  color: var(--color-iron);
+}

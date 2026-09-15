@@ -1,0 +1,175 @@
+openapi: 3.1.0
+info:
+  title: Jobs API
+  version: 0.1.0
+  description: |
+    In-place analytics job scheduling at lowest eligible tier (BR-3).
+  x-domain: job
+  license:
+    name: Proprietary
+    url: https://tierfog.local/license
+servers:
+  - url: https://api.tierfog.local
+security:
+  - apiKey: []
+tags:
+  - name: Jobs
+    description: In-place analytics jobs
+paths:
+  /v1/jobs:
+    get:
+      operationId: listAnalyticsJobs
+      tags: [Jobs]
+      summary: List analytics jobs
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ./common/parameters.yaml#/components/parameters/Limit
+        - name: status
+          in: query
+          schema:
+            $ref: ./jobs.schemas.yaml#/components/schemas/JobStatus
+      x-repository: AnalyticsJob
+      x-dynamodb:
+        entityType: "ANALYTICSJOB"
+        pkPatternTemplate: "ANALYTICSJOB#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+        filterFields: ["status"]
+      responses:
+        '200':
+          description: Jobs page
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/AnalyticsJobListResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+    post:
+      operationId: scheduleAnalyticsJob
+      tags: [Jobs]
+      summary: Schedule in-place analytics job
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./jobs.schemas.yaml#/components/schemas/AnalyticsJobCreate
+      x-repository: AnalyticsJob
+      x-dynamodb:
+        entityType: "ANALYTICSJOB"
+        pkPatternTemplate: "ANALYTICSJOB#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '201':
+          description: Job scheduled
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/AnalyticsJobResponse
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/jobs/{jobId}:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          $ref: ./jobs.schemas.yaml#/components/schemas/AnalyticsJobId
+    get:
+      operationId: getAnalyticsJob
+      tags: [Jobs]
+      summary: Get analytics job
+      x-repository: AnalyticsJob
+      x-dynamodb:
+        entityType: "ANALYTICSJOB"
+        pkPatternTemplate: "ANALYTICSJOB#${id}"
+        skPatternTemplate: "METADATA"
+        pkPattern: "entity"
+        usePkQuery: false
+        createdAtField: "createdAt"
+        updatedAtField: "updatedAt"
+        softDeleteEnabled: false
+      responses:
+        '200':
+          description: Job
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/AnalyticsJobResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/jobs/{jobId}/override-placement:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          $ref: ./jobs.schemas.yaml#/components/schemas/AnalyticsJobId
+    post:
+      operationId: overrideJobPlacement
+      tags: [Jobs]
+      summary: Force lower/higher tier with audit reason
+      parameters:
+        - $ref: ./common/parameters.yaml#/components/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./jobs.schemas.yaml#/components/schemas/JobPlacementOverride
+      x-repository: AnalyticsJob
+      responses:
+        '200':
+          description: Placement overridden
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/AnalyticsJobResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+  /v1/jobs/{jobId}/pause:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          $ref: ./jobs.schemas.yaml#/components/schemas/AnalyticsJobId
+    post:
+      operationId: pauseAnalyticsJob
+      tags: [Jobs]
+      summary: Pause a running or scheduled job
+      x-repository: AnalyticsJob
+      responses:
+        '200':
+          description: Job paused
+          content:
+            application/json:
+              schema:
+                $ref: ./jobs.schemas.yaml#/components/schemas/AnalyticsJobResponse
+        '404':
+          $ref: ./common/responses.yaml#/components/responses/NotFound
+        default:
+          $ref: ./common/responses.yaml#/components/responses/Problem
+
+components:
+  securitySchemes:
+    apiKey:
+      $ref: ./common/security.yaml#/components/securitySchemes/apiKey

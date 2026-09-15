@@ -1,0 +1,86 @@
+openapi: 3.1.0
+info:
+  title: Protocol schemas
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    ProtocolDomainId:
+      type: string
+      pattern: '^prd_[0-9a-z]{26}$'
+    ProtocolFamily:
+      type: string
+      enum: [mqtt_coap, rpl_6lowpan, bt_mesh, v2x, http_rich, other]
+    ProtocolDomainStatus:
+      type: string
+      enum: [pending, healthy, degraded, failed]
+    ChannelClass:
+      type: string
+      enum: [high_throughput, low_power_mesh]
+    ProtocolDomain:
+      type: object
+      required: [id, protocolFamily, tierId, status, createdAt, updatedAt]
+      properties:
+        id: { $ref: '#/components/schemas/ProtocolDomainId' }
+        protocolFamily: { $ref: '#/components/schemas/ProtocolFamily' }
+        tierId: { type: string }
+        gatewayConfigVersion: { type: string }
+        status: { $ref: '#/components/schemas/ProtocolDomainStatus' }
+        isolationChannelClass: { $ref: '#/components/schemas/ChannelClass' }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ProtocolDomainCreate:
+      type: object
+      required: [protocolFamily, tierId]
+      properties:
+        protocolFamily: { $ref: '#/components/schemas/ProtocolFamily' }
+        tierId: { type: string }
+        gatewayConfigVersion: { type: string }
+        isolationChannelClass: { $ref: '#/components/schemas/ChannelClass' }
+    GatewayConfigPush:
+      type: object
+      required: [configVersion]
+      properties:
+        configVersion: { type: string }
+        rolloutRing: { type: string, enum: [canary, ring1, ring2, all] }
+    IsolationPolicy:
+      type: object
+      required: [domainId, highThroughputWeight, lowPowerWeight]
+      properties:
+        domainId: { type: string }
+        highThroughputWeight: { type: integer, minimum: 0, maximum: 100 }
+        lowPowerWeight: { type: integer, minimum: 0, maximum: 100 }
+        stormProtection: { type: boolean, default: true }
+    IsolationPolicyUpdate:
+      type: object
+      required: [highThroughputWeight, lowPowerWeight]
+      properties:
+        highThroughputWeight: { type: integer, minimum: 0, maximum: 100 }
+        lowPowerWeight: { type: integer, minimum: 0, maximum: 100 }
+        stormProtection: { type: boolean }
+    ProtocolDomainListData:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ProtocolDomain' }
+        nextCursor: { type: string }
+    ProtocolDomainResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/ProtocolDomain' }
+    ProtocolDomainListResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/PagedDataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/ProtocolDomainListData' }
+    IsolationPolicyResponse:
+      allOf:
+        - $ref: ./common/envelopes.yaml#/components/schemas/DataEnvelope
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/IsolationPolicy' }
